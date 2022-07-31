@@ -10,10 +10,12 @@ public class GameStateManager : MonoBehaviour
     private int score;
     private float timePassed;
 
-
+    public GameObject spawners;
     public SpriteRenderer shell;
     public PlayerController playerController;
     public PlayAudioClip FXSource;
+    public AudioSource BGSource;
+
 
     public TMP_Text timerTextField;
     public TMP_Text scoreTextField;
@@ -23,6 +25,8 @@ public class GameStateManager : MonoBehaviour
     private Color defaultColor;
     void Start()
     {
+        Time.timeScale = 1;
+        Time.fixedDeltaTime = 0.02F * Time.timeScale;
         score = 0;
         timePassed = 0;
         extraLivesField.text = extraLives.ToString();
@@ -69,35 +73,32 @@ public class GameStateManager : MonoBehaviour
 
     public void PlayerGotHit()
     {
-        if (extraLives == 0)
+        extraLives--;
+        if (extraLives < 0)
         {
             //Save Score
             PlayDeathAudio();
             DisableControls();
             DeathAnimation();
             StartCoroutine(PlayerDiedReset());
+            BGSource.Pause();
         }
         else
         {
             PlayHitAudio();
             StartCoroutine(HitAnimation());
-            extraLives--;
             UpdateLivesLeftUI();
         }
     }
 
     public IEnumerator PlayerDiedReset()
     {
-
+        spawners.SetActive(false);
         Time.timeScale = 0.01f;
         Time.fixedDeltaTime = 0.001F * Time.timeScale;
-        
-        yield return new WaitForSecondsRealtime(2); ;
-        /*
-        Time.timeScale = 1;
-        Time.fixedDeltaTime = 0.02F * Time.timeScale;
+        yield return new WaitForSecondsRealtime(5); ;
         RestartScene();
-        */
+
     }
 
     void DisableControls()
